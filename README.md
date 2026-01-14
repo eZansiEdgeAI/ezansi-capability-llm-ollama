@@ -397,7 +397,56 @@ To add a new capability (e.g., speech-to-text, vision, retrieval), create a simi
 
 Additional capabilities follow the same modular pattern, allowing them to be combined into learning stacks.
 
-For complete specification, see [docs/capability-contract-spec.md](docs/capability-contract-spec.md).
+See [docs/capability-contract-spec.md](docs/capability-contract-spec.md).
+
+---
+
+## Development Plan
+
+### Phase 1: Validate Base Capability (Next)
+
+1. **Pull a model and test text generation**
+   ```bash
+   ./scripts/pull-model.sh mistral
+   curl -X POST http://localhost:11434/api/generate \
+     -d '{"model":"mistral","prompt":"Hello"}' \
+     -H "Content-Type: application/json"
+   ```
+
+2. **Run test suite**
+   ```bash
+   ./tests/test-api.sh          # Verify API
+   ./tests/test-performance.sh  # Measure speed
+   ```
+
+### Phase 2: Expand Ecosystem (Soon)
+
+3. **Create second capability** (Whisper STT or Piper TTS)
+   - Follow same pattern as capability-llm-ollama
+   - Own capability.json contract
+   - Separate repository
+
+4. **Build platform-core repo**
+   - Registry service (discovery)
+   - Orchestrator (capability matching)
+   - Gateway (single entry point)
+
+5. **Implement basic registry**
+   - File-based v1 (simple, debuggable)
+   - Capability discovery
+   - Auto-registration
+
+6. **Create example stack.yaml**
+   - Voice assistant: STT → LLM → TTS
+   - Document composition pattern
+   - Show how orchestrator wires capabilities
+
+### Phase 3: Orchestration & Composition (Future)
+
+- Multi-stack management
+- Resource constraint checking
+- Dynamic capability wiring
+- Student-facing UI shell
 
 ---
 

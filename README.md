@@ -350,59 +350,94 @@ To add a new capability (e.g., speech-to-text, vision, retrieval), create a simi
 
 Additional capabilities follow the same modular pattern, allowing them to be combined into learning stacks.
 
+For complete specification, see [docs/capability-contract-spec.md](docs/capability-contract-spec.md).
+
 ---
 
-## Troubleshooting
+## Quick Reference
 
-### Podman daemon not running
+### Helper Scripts
 
+Located in `scripts/`:
+
+- **deploy.sh** - Complete deployment with validation
+- **validate-deployment.sh** - Post-deployment health checks
+- **pull-model.sh** - Download and configure models
+- **health-check.sh** - Quick health status
+
+Usage:
 ```bash
-# Start the Podman socket service
-systemctl --user start podman.socket
-
-# Enable on boot
-systemctl --user enable podman.socket
+./scripts/deploy.sh              # Deploy everything
+./scripts/pull-model.sh mistral  # Pull a model
+./scripts/health-check.sh        # Check if healthy
 ```
 
-### Container crashes or won't start
+### Device Configurations
 
+Pre-configured settings in `config/`:
+
+- **pi5-16gb.yml** - Maximum performance (8GB limit, 4 cores, 2 models)
+- **pi4-8gb.yml** - Conservative (5GB limit, 2 cores, 1 model)
+- **device-constraints.json** - Device capability reference
+
+Switch configurations:
 ```bash
-# View error logs
-podman logs ollama-llm-capability
-
-# Restart container
-podman restart ollama-llm-capability
-
-# If that fails, recreate it
-podman-compose down
+cp config/pi5-16gb.yml podman-compose.yml
 podman-compose up -d
 ```
 
-### API not responding
+### Testing
+
+Integration and performance tests in `tests/`:
 
 ```bash
-# Check if port 11434 is in use
-sudo lsof -i :11434
-
-# Wait for container to fully start (can take 30+ seconds)
-sleep 30
-curl http://localhost:11434/api/tags
+./tests/test-api.sh          # API functionality tests
+./tests/test-performance.sh  # Measure generation speed
 ```
 
-### Out of memory errors
+---
 
-Reduce the memory limit in `podman-compose.yml` or reduce model size:
+## Documentation
 
-```yaml
-deploy:
-  resources:
-    limits:
-      memory: 5g  # Reduced from 6g
+Comprehensive guides available in `docs/`:
+
+- **[Architecture](docs/architecture.md)** - System design and principles
+- **[Performance Tuning](docs/performance-tuning.md)** - Optimization for Pi models
+- **[Troubleshooting](docs/troubleshooting.md)** - Common issues and solutions
+- **[Capability Contract Spec](docs/capability-contract-spec.md)** - Contract schema details
+
+---
+
+## Project Structure
+
 ```
-
-Or pull a smaller model:
-```bash
-curl -X POST http://localhost:11434/api/pull -d '{"name":"orca-mini"}'
+ezansi-capability-llm-ollama/
+├── capability.json           # Capability contract
+├── podman-compose.yml        # Main deployment configuration
+├── README.md                 # This file
+├── CHANGELOG.md              # Version history
+├── LICENSE                   # License information
+├── scripts/                  # Helper scripts
+│   ├── deploy.sh
+│   ├── validate-deployment.sh
+│   ├── pull-model.sh
+│   └── health-check.sh
+├── config/                   # Device-specific configs
+│   ├── pi5-16gb.yml
+│   ├── pi4-8gb.yml
+│   └── device-constraints.json
+├── tests/                    # Integration tests
+│   ├── test-api.sh
+│   ├── test-performance.sh
+│   └── README.md
+├── docs/                     # Documentation
+│   ├── architecture.md
+│   ├── performance-tuning.md
+│   ├── troubleshooting.md
+│   ├── capability-contract-spec.md
+│   └── README.md
+└── notes/                    # Research and planning
+    └── research.md
 ```
 
 ---
@@ -416,6 +451,8 @@ Once the base capability is validated:
 3. **Build orchestrator:** Wire capabilities into learning stacks (study-buddy, podcast generator, etc.)
 4. **Add UI shell:** Web interface for end-users to compose and run stacks
 
+See [notes/research.md](notes/research.md) for the complete roadmap.
+
 ---
 
 ## References
@@ -423,7 +460,9 @@ Once the base capability is validated:
 - [Ollama Official Docs](https://github.com/ollama/ollama)
 - [Podman Documentation](https://docs.podman.io/)
 - [Raspberry Pi 5 Specifications](https://www.raspberrypi.com/products/raspberry-pi-5/)
-- eZansiEdgeAI Research: See `notes/research.md`
+- [eZansiEdgeAI Research](notes/research.md)
+- [Troubleshooting Guide](docs/troubleshooting.md)
+- [Performance Tuning](docs/performance-tuning.md)
 
 ---
 

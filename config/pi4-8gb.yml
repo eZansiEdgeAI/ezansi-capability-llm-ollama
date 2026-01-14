@@ -1,0 +1,34 @@
+version: '3.8'
+
+# Configuration for Raspberry Pi 4 (8GB)
+# Conservative resource limits
+
+services:
+  ollama:
+    image: docker.io/ollama/ollama
+    container_name: ollama-llm-capability
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    deploy:
+      resources:
+        limits:
+          memory: 5g
+          cpus: '4'
+        reservations:
+          memory: 3g
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    environment:
+      - OLLAMA_NUM_PARALLEL=2
+      - OLLAMA_MAX_LOADED_MODELS=1
+
+volumes:
+  ollama-data:
+    driver: local

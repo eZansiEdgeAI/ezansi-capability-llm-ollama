@@ -1,0 +1,40 @@
+{
+  "devices": [
+    {
+      "name": "raspberry-pi-5-16gb",
+      "ram_mb": 16000,
+      "cpu_cores": 4,
+      "recommended_models": ["mistral", "llama2", "neural-chat"],
+      "max_concurrent_requests": 4,
+      "ollama_config": {
+        "memory_limit": "8g",
+        "num_parallel": 4,
+        "max_loaded_models": 2
+      }
+    },
+    {
+      "name": "raspberry-pi-5-8gb",
+      "ram_mb": 8000,
+      "cpu_cores": 4,
+      "recommended_models": ["mistral", "neural-chat", "orca-mini"],
+      "max_concurrent_requests": 2,
+      "ollama_config": {
+        "memory_limit": "6g",
+        "num_parallel": 2,
+        "max_loaded_models": 1
+      }
+    },
+    {
+      "name": "raspberry-pi-4-8gb",
+      "ram_mb": 8000,
+      "cpu_cores": 4,
+      "recommended_models": ["neural-chat", "orca-mini", "tinyllama"],
+      "max_concurrent_requests": 2,
+      "ollama_config": {
+        "memory_limit": "5g",
+        "num_parallel": 2,
+        "max_loaded_models": 1
+      }
+    }
+  ]
+}

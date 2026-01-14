@@ -1,34 +1,432 @@
 # ezansi-capability-llm-ollama
 
-# Ollama LLM Capability
+Ollama LLM Capability for eZansiEdgeAI — a modular, containerized text-generation service designed to run on Raspberry Pi 5.
 
-Provides: text-generation  
-Target device: Raspberry Pi 5 (16GB)
+**Provides:** `text-generation`  
+**Target device:** Raspberry Pi 5 (16GB)  
+**Deployment method:** Podman + podman-compose
 
-## What this capability does
+---
 
-Runs a local LLM using Ollama and exposes it as a discoverable text-generation capability for the eZansiEdgeAI platform.
+## Deployment Plan
+
+This project focuses on getting the base Ollama capability up and deployable from this repository. The goal is to establish the first "LEGO brick" in the eZansiEdgeAI modular capability architecture.
+
+### Deliverables
+
+1. **Capability Contract** (`capability.json`) — Fully defines the Ollama LLM capability with name, version, API details, resource requirements, and container configuration. This contract is the foundation for the modular platform.
+
+2. **Podman Compose Configuration** (`podman-compose.yml`) — Production-ready container setup with:
+   - Health checks to verify service availability
+   - Resource limits (6GB RAM, 4 CPU cores) tuned for Pi 5
+   - Persistent volume for model storage
+   - Auto-restart on failure
+
+3. **Automated Deployment Validation** (`scripts/validate-deployment.sh`) — A shell script that validates:
+   - Podman is installed and running
+   - Ollama container starts successfully
+   - API health check passes
+   - Container resources are configured correctly
+
+4. **Deployment Documentation** — Clear step-by-step instructions for users to deploy from this repo on their Pi 5.
+
+5. **Capability Contract Documentation** — Explanation of the `capability.json` schema so others can create additional capabilities (speech-to-text, vision, retrieval, etc.).
+
+### Architectural Context
+
+This capability is part of the **eZansiEdgeAI** platform vision:
+- **Ncane** (small): Lightweight, containerized modules
+- **Shesha** (fast): Low-latency edge execution  
+- **Khanya** (light): Minimal overhead on constrained hardware
+- **Umngcele** (edge): Intelligence at the network edge
+
+The modular "capability contract" pattern allows different AI services to be discovered, wired together, and orchestrated into learning stacks without code changes. This is the foundation implementation.
+
+---
+
+## What This Capability Does
+
+Runs a local LLM using [Ollama](https://ollama.ai) in a containerized environment and exposes it as a REST API for text-generation tasks. The API can be called to:
+- List available models
+- Generate text from prompts
+- Stream responses
+- Manage local model downloads
+
+---
 
 ## Resource Requirements
 
-- RAM: ~6GB
-- CPU: 4 cores
+| Resource | Requirement |
+|----------|-------------|
+| RAM      | 6 GB (limit), 4 GB (reserved) |
+| CPU      | 4 cores (recommended Pi 5 minimum) |
+| Storage  | 8 GB+ (for model data) |
+| Disk I/O | SSD or USB 3.0+ recommended |
 
+---
 
-## How to Run (Podman)
+## Prerequisites
 
+### 1. Prepare Your Raspberry Pi 5
+
+Ensure your Pi is running a supported OS (Raspberry Pi OS 64-bit recommended) and has:
+- Podman and podman-compose installed
+- User-level Podman access configured
+- Sufficient storage for model data
+
+**Installation commands:**
+
+```bash
+# Install Podman and podman-compose
+sudo apt update
+sudo apt install -y podman podman-compose
+
+# Verify installation
+podman --version
+podman-compose --version
+
+# Enable user-level Podman persistence (survive logout/reboot)
+loginctl enable-linger $USER
+
+# Verify Podman daemon is accessible
+podman ps
+```
+
+### 1b. Configure User-Level Podman Access
+
+**Why this matters:** By default, Podman containers run as your user (rootless Podman). For containers to survive logout/reboot and run as expected on a Pi, you must enable user lingering and configure the Podman socket.
+
+**Check current status:**
+
+```bash
+# Check if your user has linger enabled
+loginctl show-user $USER | grep Linger
+
+# Expected output: Linger=yes
+```
+
+**If Linger=no, enable it:**
+
+```bash
+# Enable user lingering (allows services to run after logout)
+loginctl enable-linger $USER
+
+# Verify it's enabled
+loginctl show-user $USER | grep Linger
+```
+
+**Start the Podman socket service (rootless):**
+
+```bash
+# Start the user-level Podman socket service
+systemctl --user start podman.socket
+
+# Enable it to start on boot
+systemctl --user enable podman.socket
+
+# Verify it's running
+systemctl --user status podman.socket
+```
+
+**Set environment variable for Podman CLI (optional but recommended):**
+
+Add this to your shell profile (`~/.bashrc` or `~/.zshrc`):
+
+```bash
+export DOCKER_HOST=unix:///run/user/$(id -u)/podman/podman.sock
+```
+
+Then reload:
+```bash
+source ~/.bashrc  # or source ~/.zshrc
+```
+
+**Verify everything works:**
+
+```bash
+# Test basic Podman commands
+podman ps
+podman images
+
+# Should work without sudo
+```
+
+**Troubleshooting:**
+
+If you get permission errors:
+```bash
+# Check if the socket exists
+ls -la /run/user/$(id -u)/podman/
+
+# If socket doesn't exist, start the service again
+systemctl --user restart podman.socket
+
+# Verify it's running
+systemctl --user is-active podman.socket
+```
+
+### 2. Clone This Repository
+
+```bash
+git clone https://github.com/your-org/ezansi-capability-llm-ollama.git
+cd ezansi-capability-llm-ollama
+```
+
+---
+
+## Deployment Instructions
+
+### Step 1: Start the Ollama Container
+
+From the repository root, run:
+
+```bash
 podman-compose up -d
+```
 
+This will:
+- Pull the Ollama image from Docker Hub (first run only)
+- Create and start the `ollama-llm-capability` container
+- Expose the API on `http://localhost:11434`
+- Create a persistent volume for model data
 
-## How to Test
+### Step 2: Validate Deployment
 
+Run the automated validation script to ensure the service is healthy:
+
+```bash
+./scripts/validate-deployment.sh
+```
+
+This script checks:
+- ✓ Podman is installed and running
+- ✓ Ollama container is up and responding
+- ✓ API health endpoint returns data
+- ✓ Resource limits are configured
+- ✓ Container is ready for use
+
+**Expected output:** All checks pass with green indicators.
+
+### Step 3: Pull a Language Model
+
+Before generating text, pull a model. Start with a lightweight model for Pi 5:
+
+```bash
+# Pull Mistral (7B, recommended for Pi 5)
+curl -X POST http://localhost:11434/api/pull -d '{"name":"mistral"}'
+
+# Or pull Llama 2 (7B alternative)
+curl -X POST http://localhost:11434/api/pull -d '{"name":"llama2"}'
+
+# Or pull Neural Chat (lighter, faster)
+curl -X POST http://localhost:11434/api/pull -d '{"name":"neural-chat"}'
+```
+
+Models download to the persistent volume (`ollama-data`). First pull takes time depending on internet and Pi storage speed.
+
+### Step 4: Test Text Generation
+
+Once a model is loaded, generate text:
+
+```bash
+curl -X POST http://localhost:11434/api/generate \
+  -d '{"model":"mistral","prompt":"Explain quantum computing in one sentence"}' \
+  -H "Content-Type: application/json"
+```
+
+For streaming responses:
+
+```bash
+curl -X POST http://localhost:11434/api/generate \
+  -d '{"model":"mistral","prompt":"Hello","stream":true}' \
+  -H "Content-Type: application/json"
+```
+
+---
+
+## Health Checks
+
+### Check If Service Is Running
+
+```bash
+# List running containers
+podman ps
+
+# Expected: ollama-llm-capability container should be listed
+```
+
+### Check API Responsiveness
+
+```bash
+# List available models
 curl http://localhost:11434/api/tags
 
-## Getting the Rasberry Pi 5 ready for Ollma in container
+# Expected JSON response with "models" array
 ```
-sudo apt install -y podman podman-compose
-podman --version
-loginctl enable-linger $USER #This allows Podman containers to survive logout/reboot
-podman pull docker.io/ollama/ollama
-sudo podman run -d --name ollama -p 11434:11434 -v ollama-data:/root/.ollama --memory=6g --cpus=4 docker.io/ollama/ollama
+
+### View Container Logs
+
+```bash
+podman logs ollama-llm-capability
+
+# Follow logs in real-time
+podman logs -f ollama-llm-capability
 ```
+
+### Check Resource Usage
+
+```bash
+podman stats ollama-llm-capability
+
+# Expected: RAM usage ~4-6 GB depending on model, CPU ~0-100% during inference
+```
+
+---
+
+## Stopping and Cleaning Up
+
+### Stop the Container
+
+```bash
+podman-compose down
+```
+
+This stops the container but preserves model data in the volume.
+
+### Remove Everything (Including Models)
+
+```bash
+podman-compose down -v
+```
+
+**Warning:** This deletes all downloaded models. Re-pulling takes time.
+
+---
+
+## Understanding the Capability Contract
+
+### What is `capability.json`?
+
+The `capability.json` file is a **capability contract** — a standardized interface that defines:
+- What service this provides (`text-generation`)
+- How to reach it (`http://localhost:11434`)
+- What resources it needs (6GB RAM, 4 CPU cores)
+- What container implements it (`docker.io/ollama/ollama`)
+
+This contract enables the eZansiEdgeAI platform to:
+1. **Discover** capabilities available on a device
+2. **Check** if a device has enough resources
+3. **Wire together** multiple capabilities into learning stacks
+4. **Orchestrate** workflows without hardcoding service addresses
+
+### Creating Additional Capabilities
+
+To add a new capability (e.g., speech-to-text, vision, retrieval), create a similar contract:
+
+```json
+{
+  "name": "capability-name",
+  "version": "1.0",
+  "description": "What this capability does",
+  "provides": ["service-type"],
+  "api": {
+    "endpoint": "http://localhost:<port>",
+    "type": "REST",
+    "health_check": "/health"
+  },
+  "resources": {
+    "ram_mb": 2000,
+    "cpu_cores": 2,
+    "storage_mb": 1000
+  },
+  "container": {
+    "image": "container/image:tag",
+    "port": <port>,
+    "restart_policy": "unless-stopped"
+  },
+  "target_platform": "Raspberry Pi 5"
+}
+```
+
+Additional capabilities follow the same modular pattern, allowing them to be combined into learning stacks.
+
+---
+
+## Troubleshooting
+
+### Podman daemon not running
+
+```bash
+# Start the Podman socket service
+systemctl --user start podman.socket
+
+# Enable on boot
+systemctl --user enable podman.socket
+```
+
+### Container crashes or won't start
+
+```bash
+# View error logs
+podman logs ollama-llm-capability
+
+# Restart container
+podman restart ollama-llm-capability
+
+# If that fails, recreate it
+podman-compose down
+podman-compose up -d
+```
+
+### API not responding
+
+```bash
+# Check if port 11434 is in use
+sudo lsof -i :11434
+
+# Wait for container to fully start (can take 30+ seconds)
+sleep 30
+curl http://localhost:11434/api/tags
+```
+
+### Out of memory errors
+
+Reduce the memory limit in `podman-compose.yml` or reduce model size:
+
+```yaml
+deploy:
+  resources:
+    limits:
+      memory: 5g  # Reduced from 6g
+```
+
+Or pull a smaller model:
+```bash
+curl -X POST http://localhost:11434/api/pull -d '{"name":"orca-mini"}'
+```
+
+---
+
+## Next Steps
+
+Once the base capability is validated:
+
+1. **Build additional capabilities:** Speech-to-text, vision, retrieval, embeddings
+2. **Implement capability registry:** Central discovery service for available capabilities
+3. **Build orchestrator:** Wire capabilities into learning stacks (study-buddy, podcast generator, etc.)
+4. **Add UI shell:** Web interface for end-users to compose and run stacks
+
+---
+
+## References
+
+- [Ollama Official Docs](https://github.com/ollama/ollama)
+- [Podman Documentation](https://docs.podman.io/)
+- [Raspberry Pi 5 Specifications](https://www.raspberrypi.com/products/raspberry-pi-5/)
+- eZansiEdgeAI Research: See `notes/research.md`
+
+---
+
+## License
+
+See [LICENSE](LICENSE) file.

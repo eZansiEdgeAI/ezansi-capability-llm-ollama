@@ -266,6 +266,23 @@ stat -fc %T /sys/fs/cgroup/
 # Should output: cgroup2fs
 ```
 
+**If output is already `cgroup2fs` but you still get the error:**
+
+You're likely using `sudo` with rootless Podman. Don't mix them!
+
+```bash
+# ❌ WRONG - Don't use sudo with rootless Podman
+sudo podman run --memory=6g ...
+
+# ✅ CORRECT - Run without sudo
+podman run --memory=6g ...
+
+# ✅ BETTER - Use podman-compose
+podman-compose up -d
+```
+
+**Why:** Rootless Podman uses your user's cgroup delegation. Using `sudo` tries to access root's cgroup configuration, which may not have memory controller enabled.
+
 **If output is `tmpfs` (cgroups v1), enable cgroups v2:**
 
 1. Edit boot configuration:

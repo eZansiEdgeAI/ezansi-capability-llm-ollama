@@ -247,6 +247,83 @@ podman logs -f ollama-llm-capability
 
 ---
 
+### Memory Limit Errors (cgroups)
+
+#### Symptoms
+- `Error: crun: opening file 'memory.max' for writing: No such file or directory`
+- `OCI runtime attempted to invoke a command that was not found`
+- Memory/CPU limits in podman-compose don't work
+
+#### Cause
+
+Raspberry Pi OS may not have cgroups v2 memory controller enabled by default. This is required for Podman resource limits.
+
+#### Solutions
+
+**Check current cgroups version:**
+```bash
+stat -fc %T /sys/fs/cgroup/
+# Should output: cgroup2fs
+```
+
+**If output is `tmpfs` (cgroups v1), enable cgroups v2:**
+
+1. Edit boot configuration:
+```bash
+sudo nano /boot/firmware/cmdline.txt
+```
+
+2. Add these parameters to the **end of the existing line** (don't create new lines):
+```
+cgroup_enable=cpuset cgroup_enable=memory cgroup_memory=1 systemd.unified_cgroup_hierarchy=1
+```
+
+3. Save and reboot:
+```bash
+sudo reboot
+```
+
+4. Verify after reboot:
+```bash
+stat -fc %T /sys/fs/cgroup/
+# Should now output: cgroup2fs
+
+# Check memory controller is available
+cat /sys/fs/cgroup/cgroup.controllers
+# Should include: cpuset cpu io memory pids
+```
+
+**If using older Raspberry Pi OS:**
+
+The file might be `/boot/cmdline.txt` instead of `/boot/firmware/cmdline.txt`:
+```bash
+sudo nano /boot/cmdline.txt
+```
+
+**Workaround (if can't enable cgroups v2):**
+
+Remove resource limits from podman-compose.yml temporarily:
+
+```yaml
+services:
+  ollama:
+    image: docker.io/ollama/ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    # deploy:                    # Comment out resource limits
+    #   resources:
+    #     limits:
+    #       memory: 6g
+    #       cpus: '4'
+    restart: unless-stopped
+```
+
+**Note:** Without resource limits, Ollama can consume all available system resources. Monitor with `htop` or `podman stats`.
+
+---
+
 ### Permission Denied Errors
 
 #### Symptoms

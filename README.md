@@ -165,6 +165,49 @@ systemctl --user restart podman.socket
 systemctl --user is-active podman.socket
 ```
 
+### 1c. Enable cgroups v2 (Required for Resource Limits)
+
+**Why this matters:** Podman resource limits (memory, CPU) require cgroups v2 with memory controller enabled. Most Raspberry Pi OS installations need this configured.
+
+**Check if already enabled:**
+
+```bash
+stat -fc %T /sys/fs/cgroup/
+# Expected: cgroup2fs
+# If you see: tmpfs (needs configuration)
+```
+
+**Enable cgroups v2:**
+
+1. Edit boot configuration:
+```bash
+sudo nano /boot/firmware/cmdline.txt
+# Or on older Pi OS: sudo nano /boot/cmdline.txt
+```
+
+2. Add to the **end of the existing line** (don't create new line):
+```
+cgroup_enable=cpuset cgroup_enable=memory cgroup_memory=1 systemd.unified_cgroup_hierarchy=1
+```
+
+3. Save, exit, and reboot:
+```bash
+sudo reboot
+```
+
+4. Verify after reboot:
+```bash
+stat -fc %T /sys/fs/cgroup/
+# Should output: cgroup2fs
+
+cat /sys/fs/cgroup/cgroup.controllers
+# Should include: cpuset cpu io memory pids
+```
+
+**If you skip this step:** Container will start but resource limits won't be enforced, potentially consuming all system resources.
+
+For more details, see [docs/troubleshooting.md](docs/troubleshooting.md#memory-limit-errors-cgroups).
+
 ### 2. Clone This Repository
 
 ```bash

@@ -256,43 +256,34 @@ podman logs -f ollama-llm-capability
 
 #### Cause
 
-Raspberry Pi OS may not have cgroups v2 memory controller enabled by default. This is required for Podman resource limits.
+The memory controller is not enabled in cgroups. Even if cgroups v2 is active, the memory controller must be explicitly enabled via boot parameters.
 
 #### Solutions
 
-**Check current cgroups version:**
-```bash
-stat -fc %T /sys/fs/cgroup/
-# Should output: cgroup2fs
-```
-
-**If output is already `cgroup2fs` but you still get the error:**
-
-You're likely using `sudo` with rootless Podman. Don't mix them!
+**Step 1: Check if memory controller is available:**
 
 ```bash
-# ❌ WRONG - Don't use sudo with rootless Podman
-sudo podman run --memory=6g ...
-
-# ✅ CORRECT - Run without sudo
-podman run --memory=6g ...
-
-# ✅ BETTER - Use podman-compose
-podman-compose up -d
+cat /sys/fs/cgroup/cgroup.controllers
+# Should show: cpuset cpu io memory pids
+# If memory is missing, you need to enable it
 ```
 
-**Why:** Rootless Podman uses your user's cgroup delegation. Using `sudo` tries to access root's cgroup configuration, which may not have memory controller enabled.
-
-**If output is `tmpfs` (cgroups v1), enable cgroups v2:**
+**Step 2: If memory is missing, enable it:**
 
 1. Edit boot configuration:
 ```bash
 sudo nano /boot/firmware/cmdline.txt
+# Or on older Pi OS: sudo nano /boot/cmdline.txt
 ```
 
-2. Add these parameters to the **end of the existing line** (don't create new lines):
+2. **Go to the END of the line** (don't create new line) and add:
 ```
-cgroup_enable=cpuset cgroup_enable=memory cgroup_memory=1 systemd.unified_cgroup_hierarchy=1
+cgroup_enable=memory cgroup_memory=1
+```
+
+**Important:** Add a space before the new parameters. The line should look like:
+```
+...cfg80211.ieee80211_regdom=GB cgroup_enable=memory cgroup_memory=1
 ```
 
 3. Save and reboot:
@@ -302,20 +293,28 @@ sudo reboot
 
 4. Verify after reboot:
 ```bash
-stat -fc %T /sys/fs/cgroup/
-# Should now output: cgroup2fs
-
-# Check memory controller is available
 cat /sys/fs/cgroup/cgroup.controllers
-# Should include: cpuset cpu io memory pids
+# Should now include: cpuset cpu io memory pids
 ```
 
-**If using older Raspberry Pi OS:**
+**Step 3: Then test resource limits:**
 
-The file might be `/boot/cmdline.txt` instead of `/boot/firmware/cmdline.txt`:
 ```bash
-sudo nano /boot/cmdline.txt
+podman run -d --name ollama \
+  -p 11434:11434 \
+  -v ollama-data:/root/.ollama \
+  --memory=6g \
+  --cpus=4 \
+  docker.io/ollama/ollama
 ```
+
+**Troubleshooting the fix:**
+
+If you still get the error after reboot:
+- Double-check the space between existing parameters and `cgroup_enable=memory`
+- Verify file was saved correctly: `cat /boot/firmware/cmdline.txt`
+- Try rebooting again
+- Check logs: `podman logs ollama`
 
 **Workaround (if can't enable cgroups v2):**
 

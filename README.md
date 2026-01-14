@@ -165,19 +165,20 @@ systemctl --user restart podman.socket
 systemctl --user is-active podman.socket
 ```
 
-### 1c. Enable cgroups v2 (Required for Resource Limits)
+### 1c. Enable Memory Controller in cgroups (Required for Resource Limits)
 
-**Why this matters:** Podman resource limits (memory, CPU) require cgroups v2 with memory controller enabled. Most Raspberry Pi OS installations need this configured.
+**Why this matters:** Podman resource limits (memory, CPU) require the memory controller to be enabled in cgroups. This must be explicitly configured via boot parameters on Raspberry Pi OS.
 
-**Check if already enabled:**
+**Check if memory controller is available:**
 
 ```bash
-stat -fc %T /sys/fs/cgroup/
-# Expected: cgroup2fs
-# If you see: tmpfs (needs configuration)
+cat /sys/fs/cgroup/cgroup.controllers
+# Should show: cpuset cpu io memory pids
+# If you see only: cpuset cpu io pids (memory missing)
+# Then follow the steps below
 ```
 
-**Enable cgroups v2:**
+**Enable memory controller:**
 
 1. Edit boot configuration:
 ```bash
@@ -185,28 +186,31 @@ sudo nano /boot/firmware/cmdline.txt
 # Or on older Pi OS: sudo nano /boot/cmdline.txt
 ```
 
-2. Add to the **end of the existing line** (don't create new line):
+2. **Move to the END of the existing line** (use Ctrl+E or End key, don't create new line) and add:
 ```
-cgroup_enable=cpuset cgroup_enable=memory cgroup_memory=1 systemd.unified_cgroup_hierarchy=1
+cgroup_enable=memory cgroup_memory=1
 ```
 
-3. Save, exit, and reboot:
+**Example:** Your line should look like:
+```
+console=serial0,115200 console=tty1 root=PARTUUID=xxxxx rootfstype=ext4 fsck.repair=yes rootwait quiet splash cfg80211.ieee80211_regdom=GB cgroup_enable=memory cgroup_memory=1
+```
+
+3. Save and reboot:
 ```bash
+# Press Ctrl+X, then Y, then Enter
 sudo reboot
 ```
 
 4. Verify after reboot:
 ```bash
-stat -fc %T /sys/fs/cgroup/
-# Should output: cgroup2fs
-
 cat /sys/fs/cgroup/cgroup.controllers
-# Should include: cpuset cpu io memory pids
+# Should now show: cpuset cpu io memory pids
 ```
 
 **If you skip this step:** Container will start but resource limits won't be enforced, potentially consuming all system resources.
 
-For more details, see [docs/troubleshooting.md](docs/troubleshooting.md#memory-limit-errors-cgroups).
+For troubleshooting, see [docs/troubleshooting.md](docs/troubleshooting.md#memory-limit-errors-cgroups).
 
 ### 2. Clone This Repository
 

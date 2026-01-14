@@ -1,0 +1,10 @@
+# This is the contract. Treat it like an API.
+{
+  "name": "ollama-llm",
+  "version": "1.0",
+  "provides": ["text-generation"],
+  "resources": {
+    "ram_mb": 6000,
+    "cpu_cores": 4
+  }
+}

@@ -502,7 +502,8 @@ Integration and performance tests in `tests/`:
 ./tests/test-api.sh          # API functionality tests
 ./tests/test-performance.sh  # Measure generation speed
 ```
-
+![API Test Results](docs/images/api-integration-test.png)
+![Performance Test Results](docs/images/ollma-perf-test.png)
 ---
 
 ## Documentation

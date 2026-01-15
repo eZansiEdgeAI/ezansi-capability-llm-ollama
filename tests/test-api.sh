@@ -47,7 +47,14 @@ if [ "$MODEL_COUNT" -eq 0 ]; then
 fi
 
 # Test 4: Text Generation
-MODEL_NAME=$(echo "$MODELS" | grep -o '"name":"[^"]*"' | head -1 | cut -d'"' -f4)
+# Allow manual selection via TEST_MODEL env var, otherwise use first available
+if [ -n "$TEST_MODEL" ]; then
+    MODEL_NAME="$TEST_MODEL"
+    echo "  Using specified model: $MODEL_NAME"
+else
+    MODEL_NAME=$(echo "$MODELS" | grep -o '"name":"[^"]*"' | head -1 | cut -d'"' -f4)
+fi
+
 echo -n "Test 3: Text generation (model: $MODEL_NAME)... "
 
 RESPONSE=$(curl -s "$OLLAMA_URL/api/generate" \

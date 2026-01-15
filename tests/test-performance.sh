@@ -6,23 +6,38 @@
 set -e
 
 OLLAMA_URL="${OLLAMA_URL:-http://localhost:11434}"
-MODEL="${TEST_MODEL:-mistral}"
 PROMPT="${TEST_PROMPT:-Explain AI in one sentence}"
 
 echo "================================================"
 echo "Ollama Performance Test"
 echo "================================================"
+
+# Get available models
+echo "Fetching available models..."
+MODELS_JSON=$(curl -s "$OLLAMA_URL/api/tags")
+MODELS=$(echo "$MODELS_JSON" | grep -o '"name":"[^"]*"' | cut -d'"' -f4)
+
+if [ -z "$MODELS" ]; then
+    echo "Error: No models found. Please pull a model first:"
+    echo "  podman exec ollama-llm-capability ollama pull mistral:latest"
+    exit 1
+fi
+
+echo ""
+echo "Available models:"
+select MODEL in $MODELS; do
+    if [ -n "$MODEL" ]; then
+        echo "Selected: $MODEL"
+        break
+    else
+        echo "Invalid selection, please try again"
+    fi
+done
+
+echo ""
 echo "Model: $MODEL"
 echo "Prompt: $PROMPT"
 echo ""
-
-# Check if model exists
-if ! curl -s "$OLLAMA_URL/api/tags" | grep -q "\"$MODEL\""; then
-    echo "Error: Model '$MODEL' not found"
-    echo "Available models:"
-    curl -s "$OLLAMA_URL/api/tags" | grep '"name"' | cut -d'"' -f4
-    exit 1
-fi
 
 echo "Running generation test..."
 START_TIME=$(date +%s.%N)

@@ -267,6 +267,9 @@ curl -X POST http://localhost:11434/api/pull -d '{"name":"llama2"}'
 
 # Or pull Neural Chat (lighter, faster)
 curl -X POST http://localhost:11434/api/pull -d '{"name":"neural-chat"}'
+
+# Or pull model with tool calling
+curl -X POST http://localhost:11434/api/pull -d '{"name":"ibm/granite4:1b"}'
 ```
 
 Models download to the persistent volume (`ollama-data`). First pull takes time depending on internet and Pi storage speed.
@@ -284,9 +287,41 @@ curl -X POST http://localhost:11434/api/generate \
 For streaming responses:
 
 ```bash
-curl -X POST http://localhost:11434/api/generate \
-  -d '{"model":"mistral","prompt":"Hello","stream":true}' \
-  -H "Content-Type: application/json"
+# Stream tokens only (hides metadata)
+curl -N -X POST http://localhost:11434/api/generate \
+   -d '{"model":"mistral","prompt":"Hello","stream":true}' \
+   -H "Content-Type: application/json" \
+   | jq -r 'select(.response) | .response'
+
+# Stream tokens but also keep stats (writes full stream to a temp file)
+curl -N -X POST http://localhost:11434/api/generate \
+   -d '{"model":"mistral","prompt":"Hello","stream":true}' \
+   -H "Content-Type: application/json" \
+   | tee /tmp/ollama-stream.log | jq -r 'select(.response) | .response'
+
+# After it finishes, view stats from the last JSON object
+tail -n 1 /tmp/ollama-stream.log | jq
+
+### Switching / Stopping Models
+
+- See running/loaded models:
+   ```bash
+   podman exec ollama-llm-capability ollama ps
+   ```
+
+- Stop/unload a model from memory (keeps it on disk):
+   ```bash
+   podman exec ollama-llm-capability ollama stop mistral:latest
+   ```
+
+- Run another model (loads on demand):
+   ```bash
+   curl -X POST http://localhost:11434/api/generate \
+      -d '{"model":"ibm/granite4:1b","prompt":"Hello"}' \
+      -H "Content-Type: application/json"
+   ```
+
+- Enforce only one model loaded at a time (optional): set `OLLAMA_MAX_LOADED_MODELS=1` in your compose env and restart the container.
 ```
 
 ---
@@ -401,56 +436,18 @@ See [docs/capability-contract-spec.md](docs/capability-contract-spec.md).
 
 ---
 
-## Development Plan
+## Documentation
 
-### Phase 1: Validate Base Capability (Next)
+Comprehensive guides available in `docs/`:
 
-1. **Pull a model and test text generation**
-   ```bash
-   ./scripts/pull-model.sh mistral
-   curl -X POST http://localhost:11434/api/generate \
-     -d '{"model":"mistral","prompt":"Hello"}' \
-     -H "Content-Type: application/json"
-   ```
-
-2. **Run test suite**
-   ```bash
-   ./tests/test-api.sh          # Verify API
-   ./tests/test-performance.sh  # Measure speed
-   ```
-
-### Phase 2: Expand Ecosystem (Soon)
-
-3. **Create second capability** (Whisper STT or Piper TTS)
-   - Follow same pattern as capability-llm-ollama
-   - Own capability.json contract
-   - Separate repository
-
-4. **Build platform-core repo**
-   - Registry service (discovery)
-   - Orchestrator (capability matching)
-   - Gateway (single entry point)
-
-5. **Implement basic registry**
-   - File-based v1 (simple, debuggable)
-   - Capability discovery
-   - Auto-registration
-
-6. **Create example stack.yaml**
-   - Voice assistant: STT → LLM → TTS
-   - Document composition pattern
-   - Show how orchestrator wires capabilities
-
-### Phase 3: Orchestration & Composition (Future)
-
-- Multi-stack management
-- Resource constraint checking
-- Dynamic capability wiring
-- Student-facing UI shell
+- **[Development Roadmap](docs/development-roadmap.md)** - Multi-phase plan for the capability ecosystem
+- **[Architecture](docs/architecture.md)** - System design and principles
+- **[Performance Tuning](docs/performance-tuning.md)** - Optimization for Pi models
+- **[Troubleshooting](docs/troubleshooting.md)** - Common issues and solutions
+- **[Capability Contract Spec](docs/capability-contract-spec.md)** - Contract schema details
+- **[Deployment & Portability Guide](docs/deployment-guide.md)** - Container migration strategies
 
 ---
-
-## Quick Reference
 
 ### Helper Scripts
 
@@ -504,16 +501,6 @@ Integration and performance tests in `tests/`:
 ```
 ![API Test Results](docs/images/api-integration-test.png)
 ![Performance Test Results](docs/images/ollma-perf-test.png)
----
-
-## Documentation
-
-Comprehensive guides available in `docs/`:
-
-- **[Architecture](docs/architecture.md)** - System design and principles
-- **[Performance Tuning](docs/performance-tuning.md)** - Optimization for Pi models
-- **[Troubleshooting](docs/troubleshooting.md)** - Common issues and solutions
-- **[Capability Contract Spec](docs/capability-contract-spec.md)** - Contract schema details
 
 ---
 

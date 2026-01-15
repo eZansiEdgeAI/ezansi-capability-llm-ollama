@@ -470,17 +470,29 @@ Usage:
 
 ### Device Configurations
 
-Pre-configured settings in `config/`:
+Pre-configured setups for different hardware. Choose one based on your device:
 
-- **pi5-16gb.yml** - Maximum performance (8GB limit, 4 cores, 2 models)
-- **pi4-8gb.yml** - Conservative (5GB limit, 2 cores, 1 model)
-- **device-constraints.json** - Device capability reference
-
-Switch configurations:
+**For Raspberry Pi 5 (16GB):**
 ```bash
+# Option 1: Use the dedicated Pi 5 compose file
+podman-compose -f podman-compose.pi5.yml up -d
+
+# Option 2: Copy the config file
 cp config/pi5-16gb.yml podman-compose.yml
 podman-compose up -d
 ```
+
+**For Raspberry Pi 4 (8GB or less):**
+```bash
+cp config/pi4-8gb.yml podman-compose.yml
+podman-compose up -d
+```
+
+**Configuration files available:**
+- **podman-compose.pi5.yml** - Optimized for Pi 5 (12GB limit, supports Mistral)
+- **config/pi5-16gb.yml** - Equivalent config file for Pi 5
+- **config/pi4-8gb.yml** - Conservative settings for Pi 4 (5GB limit)
+- **device-constraints.json** - Device capability reference
 
 ### Testing
 

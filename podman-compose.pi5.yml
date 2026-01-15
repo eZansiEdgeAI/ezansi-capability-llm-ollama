@@ -1,7 +1,8 @@
 version: '3.8'
 
 # Configuration for Raspberry Pi 5 (16GB)
-# Optimized for maximum performance
+# Optimized for larger models like Mistral
+# Use with: podman-compose -f podman-compose.pi5.yml up -d
 
 services:
   ollama:

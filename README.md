@@ -557,6 +557,7 @@ See [notes/research.md](notes/research.md) for the complete roadmap.
 - [Podman Documentation](https://docs.podman.io/)
 - [Raspberry Pi 5 Specifications](https://www.raspberrypi.com/products/raspberry-pi-5/)
 - [eZansiEdgeAI Research](notes/research.md)
+- [Deployment & Portability Guide](docs/deployment-guide.md)
 - [Troubleshooting Guide](docs/troubleshooting.md)
 - [Performance Tuning](docs/performance-tuning.md)
 

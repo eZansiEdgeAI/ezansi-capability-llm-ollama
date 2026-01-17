@@ -304,6 +304,7 @@ curl -N -X POST http://localhost:11434/api/generate \
 
 # After it finishes, view stats from the last JSON object
 tail -n 1 /tmp/ollama-stream.log | jq
+```
 
 ### Switching / Stopping Models
 
@@ -325,7 +326,7 @@ tail -n 1 /tmp/ollama-stream.log | jq
    ```
 
 - Enforce only one model loaded at a time (optional): set `OLLAMA_MAX_LOADED_MODELS=1` in your compose env and restart the container.
-```
+
 
 ---
 

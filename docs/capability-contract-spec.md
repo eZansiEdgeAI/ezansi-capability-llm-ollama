@@ -16,6 +16,11 @@ Or include it as `capability.json` in the repository root.
 
 ## Schema Definition
 
+This repo supports both Raspberry Pi (ARM64) and AMD64 (x86-64) deployments. For that reason, newer contracts MAY declare multiple targets and architectures.
+
+- Prefer `target_platforms` + `supported_architectures` for new capabilities.
+- `target_platform` remains supported for backwards compatibility, but is treated as deprecated.
+
 ### v1.0 Contract
 
 ```json
@@ -45,7 +50,9 @@ Or include it as `capability.json` in the repository root.
     "port": number,              // Exposed port
     "restart_policy": "string"   // Restart policy
   },
-  "target_platform": "string",   // Optional: Intended hardware
+  "target_platform": "string",   // Optional (deprecated): Intended hardware
+  "target_platforms": ["string"], // Optional: Intended hardware targets
+  "supported_architectures": ["string"], // Optional: e.g. ["arm64", "amd64"]
   "notes": "string"              // Optional: Additional information
 }
 ```
@@ -100,7 +107,8 @@ Capabilities MUST use one of these standard `provides` values:
     "port": 11434,
     "restart_policy": "unless-stopped"
   },
-  "target_platform": "Raspberry Pi 5 (16GB)"
+  "target_platforms": ["Raspberry Pi 5 (16GB)", "Raspberry Pi 4 (8GB)", "AMD64 (24GB+)"],
+  "supported_architectures": ["arm64", "amd64"]
 }
 ```
 
@@ -179,6 +187,7 @@ Resource declarations should be realistic for target hardware:
 | Pi 5 (16GB) | 16GB | ~2GB | ~14GB |
 | Pi 5 (8GB) | 8GB | ~1.5GB | ~6.5GB |
 | Pi 4 (8GB) | 8GB | ~1.5GB | ~6.5GB |
+| AMD64 (32GB) | 32GB | ~2-4GB | ~28-30GB |
 
 ### CPU Cores
 

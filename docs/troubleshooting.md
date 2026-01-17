@@ -2,6 +2,12 @@
 
 ## Common Issues and Solutions
 
+Note: Several scripts and examples use `curl`. On minimal Linux installs you may need to install it first:
+
+```bash
+sudo apt update && sudo apt install -y curl
+```
+
 ### Container Won't Start
 
 #### Symptoms
@@ -87,6 +93,11 @@ curl -I https://docker.io
 - Connection refused errors
 
 #### Solutions
+
+**If you see `curl: command not found`:**
+```bash
+sudo apt update && sudo apt install -y curl
+```
 
 **Wait for container to fully start:**
 ```bash
@@ -184,6 +195,8 @@ podman restart ollama-llm-capability
 vcgencmd measure_temp
 # If > 80°C, improve cooling
 ```
+
+`vcgencmd` is Raspberry Pi specific. On AMD64, use `sensors` / `lm-sensors` or `watch -n1 cat /sys/class/thermal/thermal_zone*/temp`.
 
 **Use appropriate model for hardware:**
 

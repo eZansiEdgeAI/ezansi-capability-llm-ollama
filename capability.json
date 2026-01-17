@@ -18,6 +18,7 @@
     "port": 11434,
     "restart_policy": "unless-stopped"
   },
-  "target_platform": "Raspberry Pi 5 (16GB)",
-  "notes": "This capability contract defines the interface for text-generation services in eZansiEdgeAI. Other capabilities must expose the same 'provides' and resource fields."
+  "target_platforms": ["Raspberry Pi 5 (16GB)", "Raspberry Pi 4 (8GB)", "AMD64 (24GB+)"],
+  "supported_architectures": ["arm64", "amd64"],
+  "notes": "This capability contract defines the interface for text-generation services in eZansiEdgeAI. Other capabilities must expose the same 'provides' and resource fields. Supports both ARM64 (Raspberry Pi) and AMD64 (x86-64) architectures."
 }

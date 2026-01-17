@@ -5,6 +5,21 @@ All notable changes to the Ollama LLM Capability will be documented in this file
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- AMD64 (x86-64) deployment presets: `podman-compose.amd64.yml`, `config/amd64-24gb.yml`, `config/amd64-32gb.yml`
+- Dedicated AMD64 deployment guide (`docs/deployment-guide-amd64.md`)
+- AMD64 device profiles in `config/device-constraints.json`
+
+### Changed
+- Capability contract now supports multi-architecture metadata via `target_platforms` and `supported_architectures`
+- Documentation updated to reflect Raspberry Pi (ARM64) and AMD64 support across deployment, tuning, and architecture docs
+
+### Fixed
+- Documentation references to a non-existent `Containerfile` rebuild path
+- General troubleshooting guidance for environments missing `curl`
+
 ## [1.0.0] - 2026-01-14
 
 ### Added
@@ -36,3 +51,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Deployment roadmap
 
 [1.0.0]: https://github.com/eZansiEdgeAI/ezansi-capability-llm-ollama/releases/tag/v1.0.0
+[Unreleased]: https://github.com/eZansiEdgeAI/ezansi-capability-llm-ollama/compare/v1.0.0...HEAD

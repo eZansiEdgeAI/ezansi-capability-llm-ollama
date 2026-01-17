@@ -24,7 +24,7 @@ Complete specification for the capability contract schema.
 - Example contracts
 
 ### [Performance Tuning](performance-tuning.md)
-Optimize Ollama for different Raspberry Pi models.
+Optimize Ollama for different Raspberry Pi models and AMD64 systems.
 
 **Topics:**
 - Hardware-specific configurations
@@ -50,6 +50,12 @@ Common issues and solutions.
 - **Testing:** Check [tests/README.md](../tests/README.md)
 - **Configuration:** Browse [config/](../config/)
 
+## AMD64
+
+Running on an x86-64 workstation/server is supported.
+
+- **Deployment (AMD64):** See [deployment-guide-amd64.md](deployment-guide-amd64.md)
+
 ## Documentation Structure
 
 ```
@@ -57,6 +63,8 @@ docs/
 ├── README.md                        # This file
 ├── architecture.md                  # System architecture
 ├── capability-contract-spec.md      # Contract specification
+├── deployment-guide.md              # Portability and deployment patterns
+├── deployment-guide-amd64.md        # AMD64 deployment (24GB+ RAM presets)
 ├── performance-tuning.md            # Optimization guide
 └── troubleshooting.md               # Problem solving
 ```
@@ -68,7 +76,7 @@ When adding or updating documentation:
 1. **Follow Markdown best practices**
 2. **Include code examples** where appropriate
 3. **Link between related documents**
-4. **Keep content Pi-focused** - this is edge hardware
+4. **Keep content edge-focused** - Raspberry Pi is the default target, but AMD64 is supported
 5. **Update this README** when adding new docs
 
 ## External Resources

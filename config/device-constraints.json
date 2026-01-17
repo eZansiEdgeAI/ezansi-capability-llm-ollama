@@ -35,6 +35,30 @@
         "num_parallel": 2,
         "max_loaded_models": 1
       }
+    },
+    {
+      "name": "amd64-24gb",
+      "ram_mb": 24000,
+      "cpu_cores": 8,
+      "recommended_models": ["mistral", "neural-chat", "llama2"],
+      "max_concurrent_requests": 8,
+      "ollama_config": {
+        "memory_limit": "18g",
+        "num_parallel": 8,
+        "max_loaded_models": 3
+      }
+    },
+    {
+      "name": "amd64-32gb",
+      "ram_mb": 32000,
+      "cpu_cores": 16,
+      "recommended_models": ["llama2", "neural-chat", "dolphin-mixtral"],
+      "max_concurrent_requests": 16,
+      "ollama_config": {
+        "memory_limit": "28g",
+        "num_parallel": 16,
+        "max_loaded_models": 4
+      }
     }
   ]
 }

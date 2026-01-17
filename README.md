@@ -283,13 +283,18 @@ Once a model is loaded, generate text:
 
 ```bash
 curl -X POST http://localhost:11434/api/generate \
-  -d '{"model":"mistral","prompt":"Explain quantum computing in one sentence"}' \
+  -d '{"model":"mistral","prompt":"Explain quantum computing in one sentence", "stream":false}' \
   -H "Content-Type: application/json"
 ```
 
 For streaming responses:
 
 ```bash
+# Stream the response tokens in real-time
+curl -X POST http://localhost:11434/api/generate \
+  -d '{"model":"mistral","prompt":"Explain quantum computing in one sentence", "stream":false}' \
+  -H "Content-Type: application/json"
+
 # Stream tokens only (hides metadata)
 curl -N -X POST http://localhost:11434/api/generate \
    -d '{"model":"mistral","prompt":"Hello","stream":true}' \

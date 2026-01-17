@@ -92,9 +92,9 @@ loginctl enable-linger $USER
 podman ps
 ```
 
-### 1b. Configure User-Level Podman Access
+### 2. Configure User-Level Podman Access
 
-**Why this matters:** By default, Podman containers run as your user (rootless Podman). For containers to survive logout/reboot and run as expected on a Pi, you must enable user lingering and configure the Podman socket.
+**Why this matters:** By default, Podman containers run as your user (rootless Podman). For containers to survive logout/reboot and run as expected on a Pi, you must enable user lingering and configure the Podman socket service.
 
 **Check current status:**
 
@@ -136,7 +136,7 @@ Add this to your shell profile (`~/.bashrc` or `~/.zshrc`):
 export DOCKER_HOST=unix:///run/user/$(id -u)/podman/podman.sock
 ```
 
-Then reload:
+Then reload your shell profile:
 ```bash
 source ~/.bashrc  # or source ~/.zshrc
 ```
@@ -165,7 +165,7 @@ systemctl --user restart podman.socket
 systemctl --user is-active podman.socket
 ```
 
-### 1c. Enable Memory Controller in cgroups (Required for Resource Limits)
+### 3. Enable Memory Controller in cgroups (Required for Resource Limits)
 
 **Why this matters:** Podman resource limits (memory, CPU) require the memory controller to be enabled in cgroups. This must be explicitly configured via boot parameters on Raspberry Pi OS.
 
@@ -175,7 +175,7 @@ systemctl --user is-active podman.socket
 cat /sys/fs/cgroup/cgroup.controllers
 # Should show: cpuset cpu io memory pids
 # If you see only: cpuset cpu io pids (memory missing)
-# Then follow the steps below
+# Then follow the steps below, otherwise skip to "Clone This Repository"
 ```
 
 **Enable memory controller:**
@@ -212,7 +212,7 @@ cat /sys/fs/cgroup/cgroup.controllers
 
 For troubleshooting, see [docs/troubleshooting.md](docs/troubleshooting.md#memory-limit-errors-cgroups).
 
-### 2. Clone This Repository
+### 4. Clone This Repository
 
 ```bash
 git clone https://github.com/your-org/ezansi-capability-llm-ollama.git
@@ -222,6 +222,8 @@ cd ezansi-capability-llm-ollama
 ---
 
 ## Deployment Instructions
+
+Now that you have the prerequisites in place, next step is to deploy and test the Ollama LLM capability.
 
 ### Step 1: Start the Ollama Container
 
@@ -236,6 +238,7 @@ This will:
 - Create and start the `ollama-llm-capability` container
 - Expose the API on `http://localhost:11434`
 - Create a persistent volume for model data
+- The `-d` flag runs it in detached mode (in the background)
 
 ### Step 2: Validate Deployment
 
@@ -259,10 +262,10 @@ This script checks:
 Before generating text, pull a model. Start with a lightweight model for Pi 5:
 
 ```bash
-# Pull Mistral (7B, recommended for Pi 5)
+# Pull Mistral (7B parameters, recommended for Pi 5)
 curl -X POST http://localhost:11434/api/pull -d '{"name":"mistral"}'
 
-# Or pull Llama 2 (7B alternative)
+# Or pull Llama 2 (7B parameters alternative)
 curl -X POST http://localhost:11434/api/pull -d '{"name":"llama2"}'
 
 # Or pull Neural Chat (lighter, faster)

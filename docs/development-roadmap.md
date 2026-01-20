@@ -4,7 +4,7 @@ This document outlines the multi-phase plan for building the eZansiEdgeAI capabi
 
 ## Phase 1: Validate Base Capability ✓ (Current)
 
-**Status:** Base Ollama capability is deployed and tested on Pi 5
+**Status:** Base Ollama capability is deployed and tested on Pi 5 (ARM64), and supported on AMD64 (x86-64) for development and higher-performance deployments.
 
 1. **Pull a model and test text generation**
    ```bash
@@ -35,7 +35,7 @@ This document outlines the multi-phase plan for building the eZansiEdgeAI capabi
    - Follow same pattern as capability-llm-ollama
    - Own capability.json contract
    - Separate repository
-   - Target device: Raspberry Pi 5
+   - Target device: Raspberry Pi 5 (primary edge target); AMD64 support encouraged for dev/test
 
 ### New Capability Repository Structure
 
@@ -46,6 +46,7 @@ ezansi-capability-stt-whisper/
 ├── capability.json           # Contract: defines service interface
 ├── podman-compose.yml        # Deployment: container configuration
 ├── podman-compose.pi5.yml    # Device-specific: optimized for Pi 5
+├── podman-compose.amd64.yml  # Optional: device-specific preset for AMD64 (24GB+)
 ├── README.md                 # Quick start & overview
 ├── CHANGELOG.md              # Version history
 ├── LICENSE                   # License
@@ -57,6 +58,8 @@ ezansi-capability-stt-whisper/
 ├── config/
 │   ├── pi5-16gb.yml          # Pi 5 constraints
 │   ├── pi4-8gb.yml           # Pi 4 constraints
+│   ├── amd64-24gb.yml         # Optional: AMD64 constraints (24GB+)
+│   ├── amd64-32gb.yml         # Optional: AMD64 constraints (32GB+)
 │   └── device-constraints.json
 ├── tests/
 │   ├── test-api.sh           # API functionality

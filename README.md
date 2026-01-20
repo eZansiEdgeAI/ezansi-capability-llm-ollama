@@ -1,9 +1,9 @@
 # ezansi-capability-llm-ollama
 
-Ollama LLM Capability for eZansiEdgeAI — a modular, containerized text-generation service designed to run on Raspberry Pi 5.
+Ollama LLM Capability for eZansiEdgeAI — a modular, containerized text-generation service designed for Raspberry Pi (ARM64) and AMD64 (x86-64) Linux systems.
 
 **Provides:** `text-generation`  
-**Target device:** Raspberry Pi 5 (16GB)  
+**Target devices:** Raspberry Pi 4/5 (ARM64) and AMD64 hosts (24GB+)  
 **Deployment method:** Podman + podman-compose
 
 ---
@@ -56,10 +56,12 @@ Runs a local LLM using [Ollama](https://ollama.ai) in a containerized environmen
 
 ## Resource Requirements
 
+The default `podman-compose.yml` is tuned for Raspberry Pi class hardware. For AMD64 systems (24GB+), use the AMD64 compose/config presets.
+
 | Resource | Requirement |
 |----------|-------------|
-| RAM      | 6 GB (limit), 4 GB (reserved) |
-| CPU      | 4 cores (recommended Pi 5 minimum) |
+| RAM      | 6 GB (limit), 4 GB (reserved) (default Pi-friendly config) |
+| CPU      | 4 cores (default Pi-friendly config) |
 | Storage  | 8 GB+ (for model data) |
 | Disk I/O | SSD or USB 3.0+ recommended |
 
@@ -67,12 +69,22 @@ Runs a local LLM using [Ollama](https://ollama.ai) in a containerized environmen
 
 ## Prerequisites
 
-### 1. Prepare Your Raspberry Pi 5
+### 1. Prepare Your Device (Raspberry Pi or AMD64)
 
-Ensure your Pi is running a supported OS (Raspberry Pi OS 64-bit recommended) and has:
+- **Raspberry Pi:** Raspberry Pi OS 64-bit recommended.
+- **AMD64:** Ubuntu/Debian/RHEL-like Linux works well (24GB+ RAM recommended).
+
+Ensure your system has:
 - Podman and podman-compose installed
 - User-level Podman access configured
 - Sufficient storage for model data
+
+Install `curl` (used by scripts and examples):
+
+```bash
+sudo apt update
+sudo apt install -y curl
+```
 
 **Installation commands:**
 
@@ -165,9 +177,11 @@ systemctl --user restart podman.socket
 systemctl --user is-active podman.socket
 ```
 
-### 3. Enable Memory Controller in cgroups (Required for Resource Limits)
+### 3. Enable Memory Controller in cgroups (Raspberry Pi Only)
 
-**Why this matters:** Podman resource limits (memory, CPU) require the memory controller to be enabled in cgroups. This must be explicitly configured via boot parameters on Raspberry Pi OS.
+**Why this matters:** Podman resource limits (memory, CPU) require the memory controller to be enabled in cgroups. On Raspberry Pi OS this can require boot parameters.
+
+On most AMD64 Linux distributions, the memory controller is already enabled. If it is not, the fix is distro/bootloader specific (do not copy Raspberry Pi boot parameters).
 
 **Check if memory controller is available:**
 
@@ -215,7 +229,7 @@ For troubleshooting, see [docs/troubleshooting.md](docs/troubleshooting.md#memor
 ### 4. Clone This Repository
 
 ```bash
-git clone https://github.com/your-org/ezansi-capability-llm-ollama.git
+git clone https://github.com/eZansiEdgeAI/ezansi-capability-llm-ollama.git
 cd ezansi-capability-llm-ollama
 ```
 
@@ -225,12 +239,19 @@ cd ezansi-capability-llm-ollama
 
 Now that you have the prerequisites in place, next step is to deploy and test the Ollama LLM capability.
 
+For a full AMD64 walkthrough (24GB+ RAM presets), see [docs/deployment-guide-amd64.md](docs/deployment-guide-amd64.md).
+
 ### Step 1: Start the Ollama Container
 
 From the repository root, run:
 
 ```bash
+# Raspberry Pi / low-resource default
 podman-compose up -d
+
+# AMD64 (x86-64) with 24GB+ RAM
+podman-compose -f config/amd64-24gb.yml up -d
+# or: podman-compose -f podman-compose.amd64.yml up -d
 ```
 
 This will:
@@ -435,7 +456,8 @@ To add a new capability (e.g., speech-to-text, vision, retrieval), create a simi
     "port": <port>,
     "restart_policy": "unless-stopped"
   },
-  "target_platform": "Raspberry Pi 5"
+   "target_platforms": ["Raspberry Pi 4/5", "AMD64 (24GB+)"],
+   "supported_architectures": ["arm64", "amd64"]
 }
 ```
 
@@ -451,10 +473,11 @@ Comprehensive guides available in `docs/`:
 
 - **[Development Roadmap](docs/development-roadmap.md)** - Multi-phase plan for the capability ecosystem
 - **[Architecture](docs/architecture.md)** - System design and principles
-- **[Performance Tuning](docs/performance-tuning.md)** - Optimization for Pi models
+- **[Performance Tuning](docs/performance-tuning.md)** - Optimization for Pi and AMD64
 - **[Troubleshooting](docs/troubleshooting.md)** - Common issues and solutions
 - **[Capability Contract Spec](docs/capability-contract-spec.md)** - Contract schema details
 - **[Deployment & Portability Guide](docs/deployment-guide.md)** - Container migration strategies
+- **[AMD64 Deployment Guide](docs/deployment-guide-amd64.md)** - Presets for x86-64 systems
 
 ---
 
@@ -494,9 +517,21 @@ cp config/pi4-8gb.yml podman-compose.yml
 podman-compose up -d
 ```
 
+**For AMD64 (x86-64) with 24GB+ RAM:**
+```bash
+# Use the AMD64 preset (24GB)
+podman-compose -f config/amd64-24gb.yml up -d
+
+# Or use the higher-memory preset (32GB+)
+podman-compose -f config/amd64-32gb.yml up -d
+```
+
 **Configuration files available:**
 - **podman-compose.pi5.yml** - Optimized for Pi 5 (12GB limit, supports Mistral)
 - **config/pi5-16gb.yml** - Equivalent config file for Pi 5
+- **config/amd64-24gb.yml** - AMD64 preset (18GB limit / 14GB reserved)
+- **config/amd64-32gb.yml** - AMD64 preset (28GB limit / 24GB reserved)
+- **podman-compose.amd64.yml** - AMD64 default compose (20GB limit / 16GB reserved)
 - **config/pi4-8gb.yml** - Conservative settings for Pi 4 (5GB limit)
 - **device-constraints.json** - Device capability reference
 

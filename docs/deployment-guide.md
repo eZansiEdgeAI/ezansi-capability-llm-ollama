@@ -40,7 +40,9 @@ podman run -d myregistry.com/ollama-capability:latest
 
 ## Option 3: Rebuild on Target (Optimized)
 
-Copy the `Containerfile` and build locally on the target system:
+This repo deploys the upstream multi-architecture image (`docker.io/ollama/ollama`). There is no `Containerfile` in this repo today.
+
+For best compatibility across architectures, deploy on the target device using the provided compose files:
 
 ```bash
 # Transfer this repo
@@ -48,8 +50,12 @@ scp -r <this-repo> user@raspberrypi:
 
 # On target machine
 cd <this-repo>
-podman build -t ollama-capability:latest .
-podman run -d ollama-capability:latest
+
+# Raspberry Pi (ARM64)
+podman-compose up -d
+
+# AMD64 (x86-64)
+podman-compose -f config/amd64-24gb.yml up -d
 ```
 
 **Best for:** Optimizing for target architecture, minimal initial transfer, bandwidth-constrained environments  
@@ -57,9 +63,11 @@ podman run -d ollama-capability:latest
 
 ## Cross-Architecture Considerations
 
-- **x86 → ARM (Raspberry Pi):** Use Option 3 (rebuild) for best compatibility
+- **x86 → ARM (Raspberry Pi):** Deploy on the Pi using `podman-compose` (avoid moving preloaded images across architectures)
 - **ARM → ARM (Pi 4 → Pi 5):** Options 1-2 work well, same architecture
 - **Mixed fleet:** Use Option 2 (registry) with multi-architecture builds
+
+For a dedicated AMD64 walkthrough, see [deployment-guide-amd64.md](deployment-guide-amd64.md).
 
 ## Quick Start: Deploy to Raspberry Pi 5
 
@@ -80,4 +88,4 @@ podman run -d \
 ./scripts/health-check.sh
 ```
 
-See [DEPLOYMENT.md](../README.md) for additional configuration options.
+See [README.md](../README.md) for additional configuration options.

@@ -10,6 +10,8 @@ eZansiEdgeAI is a lightweight, modular edge-AI platform where small capability c
 
 Instead of one monolithic AI stack, eZansiEdgeAI provides small, independent capability modules that can be combined in different ways to create learning tools, assistants, and experiments on low-power devices.
 
+The same pattern also works on standard AMD64 (x86-64) Linux systems for development and higher-performance deployments.
+
 **Build once, compose many times.**
 
 ### Three Logical Layers
@@ -78,7 +80,7 @@ This enables:
 ### Minimal System
 
 ```
-Raspberry Pi
+Linux Device (Raspberry Pi / AMD64)
 └── Podman
     ├── platform-registry      (tiny)
     ├── platform-orchestrator  (very thin)

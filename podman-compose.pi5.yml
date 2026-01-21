@@ -8,8 +8,7 @@ services:
   ollama:
     image: docker.io/ollama/ollama
     container_name: ollama-llm-capability
-    ports:
-      - "11434:11434"
+    network_mode: host
     volumes:
       - ollama-data:/root/.ollama
     deploy:
@@ -29,7 +28,6 @@ services:
     environment:
       - OLLAMA_NUM_PARALLEL=4
       - OLLAMA_MAX_LOADED_MODELS=2
-
 volumes:
   ollama-data:
     driver: local

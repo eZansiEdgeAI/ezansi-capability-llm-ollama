@@ -8,8 +8,7 @@ services:
     image: docker.io/ollama/ollama
     container_name: ollama-llm-capability
     platform: linux/amd64
-    ports:
-      - "11434:11434"
+    network_mode: host
     volumes:
       - ollama-data:/root/.ollama
     deploy:

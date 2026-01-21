@@ -400,7 +400,14 @@ podman stats ollama-llm-capability
 ### Stop the Container
 
 ```bash
-podman-compose down
+./scripts/stop.sh --down
+```
+
+If you have multiple capability containers running and want to stop just one, use:
+
+```bash
+./scripts/stop.sh --list
+./scripts/stop.sh
 ```
 
 This stops the container but preserves model data in the volume.

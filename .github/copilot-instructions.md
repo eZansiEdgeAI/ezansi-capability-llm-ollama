@@ -152,9 +152,9 @@ podman-compose down
 ### Root Files (Important)
 
 - **capability.json** - Capability contract defining service interface (text-generation API)
-- **podman-compose.yml** - Default deployment config (6GB RAM, 4 CPU - Raspberry Pi optimized)
-- **podman-compose.pi5.yml** - Pi 5 preset (12GB RAM, 4 CPU)
-- **podman-compose.amd64.yml** - AMD64 preset (20GB RAM, 8 CPU)
+- **podman-compose.yml** - Default deployment config (6GB container limit, 4 CPU - Raspberry Pi optimized)
+- **podman-compose.pi5.yml** - Pi 5 preset (12GB container limit, 4 CPU - for 16GB system RAM)
+- **podman-compose.amd64.yml** - AMD64 generic preset (20GB container limit, 8 CPU)
 - **README.md** - Primary documentation (deployment guide, prerequisites, usage)
 - **CHANGELOG.md** - Version history and release notes
 
@@ -166,10 +166,10 @@ podman-compose down
 │   ├── ISSUE_TEMPLATE/          # Issue templates only (no workflows)
 │   └── copilot-instructions.md  # This file
 ├── config/                       # Device-specific presets
-│   ├── amd64-24gb.yml           # AMD64 with 24GB RAM
-│   ├── amd64-32gb.yml           # AMD64 with 32GB+ RAM
-│   ├── pi4-8gb.yml              # Raspberry Pi 4 (8GB)
-│   ├── pi5-16gb.yml             # Raspberry Pi 5 (16GB)
+│   ├── amd64-24gb.yml           # AMD64 with 24GB RAM (18GB container limit)
+│   ├── amd64-32gb.yml           # AMD64 with 32GB+ RAM (28GB container limit)
+│   ├── pi4-8gb.yml              # Raspberry Pi 4 (8GB system, 5GB container limit)
+│   ├── pi5-16gb.yml             # Raspberry Pi 5 (16GB system, 12GB container limit)
 │   └── device-constraints.json  # Device capability reference
 ├── scripts/                      # Deployment automation
 │   ├── deploy.sh                # Full deployment (compose + validation)
@@ -205,10 +205,10 @@ services:
     deploy:
       resources:
         limits:
-          memory: <DEVICE_SPECIFIC>       # 6g (Pi), 12g (Pi5), 20g (AMD64)
+          memory: <DEVICE_SPECIFIC>       # 6g (Pi default), 12g (Pi5), 18g (AMD64-24GB), 20g (AMD64 generic)
           cpus: '<CORES>'                 # 4 (Pi), 8 (AMD64)
         reservations:
-          memory: <RESERVED>              # 4g (Pi), 8g (Pi5), 16g (AMD64)
+          memory: <RESERVED>              # 4g (Pi default), 8g (Pi5), 14g (AMD64-24GB), 16g (AMD64 generic)
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "ollama", "list"]
@@ -268,7 +268,8 @@ Defines service interface for platform discovery:
 **Detection:**
 ```bash
 cat /sys/fs/cgroup/cgroup.controllers
-# Should include "memory" in output
+# Should include "memory" in the space-separated list
+# Example expected output: cpuset cpu io memory pids
 ```
 
 **Solution (Raspberry Pi only):**

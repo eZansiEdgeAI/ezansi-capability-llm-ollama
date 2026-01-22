@@ -6,6 +6,16 @@ Ollama LLM Capability for eZansiEdgeAI — a modular, containerized text-generat
 **Target devices:** Raspberry Pi 4/5 (ARM64) and AMD64 hosts (24GB+)  
 **Deployment method:** Podman + podman-compose
 
+## Mental model (LEGO brick)
+
+If you’re a teacher/lecturer or student, think of this repo as **one LEGO brick** in an edge‑AI kit:
+
+- This capability provides the LLM “brick” (text generation)
+- `capability.json` describes the “studs” (what this brick can do)
+- [eZansi Platform Core](https://github.com/eZansiEdgeAI/ezansi-platform-core) is the “baseplate” (one gateway that discovers bricks and routes requests)
+
+For a cold-start checklist (standalone + via the gateway), start here:
+
 ## Quickstart Manual Test
 
 - Standalone + via platform-core gateway: [docs/quickstart-manual-test.md](docs/quickstart-manual-test.md)

@@ -2,6 +2,16 @@
 
 This is a manual test checklist for the `ezansi-capability-llm-ollama` capability.
 
+## What this is (LEGO bricks for learning)
+
+If you’re a teacher/lecturer or student (school → university), think of eZansiEdgeAI as **LEGO bricks for edge AI**:
+
+- **This repo = one brick** (an LLM capability powered by Ollama)
+- **`capability.json` = the studs** (it declares what this brick provides)
+- **`ezansi-platform-core` = the baseplate/gateway** (it discovers bricks and routes requests)
+
+This quickstart proves the brick works on its own, then proves it “clicks in” through Platform Core.
+
 Goal: prove the capability works standalone, then prove it can be invoked via the `ezansi-platform-core` gateway.
 
 ## Prerequisites

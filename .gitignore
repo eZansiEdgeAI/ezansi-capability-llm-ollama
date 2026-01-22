@@ -1,6 +1,7 @@
 # Podman/Docker artifacts
 *.log
 .podman/
+ollama-capability-image.tar
 
 # Ollama data (local development)
 ollama-data/

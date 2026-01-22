@@ -2,7 +2,19 @@
 
 Comprehensive documentation for the Ollama LLM Capability.
 
+## Mental model (LEGO brick)
+
+If you’re a teacher/lecturer or student, think of this capability as **one LEGO brick**.
+
+- `capability.json` describes the “studs” (what this brick provides)
+- [eZansi Platform Core](https://github.com/eZansiEdgeAI/ezansi-platform-core) is the “baseplate” (one gateway that discovers bricks and routes requests)
+
+Start with the cold-start checklist: [Quickstart Manual Test](quickstart-manual-test.md)
+
 ## Core Documentation
+
+### [Quickstart Manual Test](quickstart-manual-test.md)
+Cold-start checklist: deploy, pull a model, and validate end-to-end (standalone + via platform-core).
 
 ### [Architecture](architecture.md)
 System architecture, design principles, and component responsibilities.

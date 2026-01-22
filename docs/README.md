@@ -4,6 +4,9 @@ Comprehensive documentation for the Ollama LLM Capability.
 
 ## Core Documentation
 
+### [Quickstart Manual Test](quickstart-manual-test.md)
+Cold-start checklist: deploy, pull a model, and validate end-to-end (standalone + via platform-core).
+
 ### [Architecture](architecture.md)
 System architecture, design principles, and component responsibilities.
 

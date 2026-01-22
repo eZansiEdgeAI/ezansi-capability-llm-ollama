@@ -6,6 +6,10 @@ Ollama LLM Capability for eZansiEdgeAI — a modular, containerized text-generat
 **Target devices:** Raspberry Pi 4/5 (ARM64) and AMD64 hosts (24GB+)  
 **Deployment method:** Podman + podman-compose
 
+## Quickstart Manual Test
+
+- Standalone + via platform-core gateway: [docs/quickstart-manual-test.md](docs/quickstart-manual-test.md)
+
 ---
 
 ## Deployment Plan

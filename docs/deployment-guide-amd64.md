@@ -28,8 +28,8 @@ This guide covers deploying the Ollama LLM capability on x86-64 (AMD64) systems 
 git clone https://github.com/eZansiEdgeAI/ezansi-capability-llm-ollama.git
 cd ezansi-capability-llm-ollama
 
-# 2. Deploy using the AMD64 compose file
-podman-compose -f podman-compose.amd64.yml up -d
+# 2. Deploy using the recommended preset
+./scripts/choose-compose.sh --run
 
 # 3. Verify the service is healthy
 ./scripts/health-check.sh
@@ -41,13 +41,6 @@ podman exec ollama-llm-capability ollama pull mistral
 ## Compose File Selection
 
 Choose the appropriate configuration for your system:
-
-### `podman-compose.amd64.yml` (Recommended for 24GB+)
-- Memory limit: 20GB / 16GB reserved
-- CPU limit: 8 cores
-- Parallel requests: 8
-- Max loaded models: 3
-- **Best for:** Standard x86-64 servers with 24GB-32GB RAM
 
 ### `config/amd64-24gb.yml` (Explicit 24GB configuration)
 - Memory limit: 18GB / 14GB reserved
@@ -69,16 +62,16 @@ Choose the appropriate configuration for your system:
 
 ```bash
 # Start the service
-podman-compose -f podman-compose.amd64.yml up -d
+podman-compose -f ./config/amd64-24gb.yml up -d
 
 # Check status
-podman-compose -f podman-compose.amd64.yml ps
+podman-compose -f ./config/amd64-24gb.yml ps
 
 # View logs
-podman-compose -f podman-compose.amd64.yml logs -f
+podman-compose -f ./config/amd64-24gb.yml logs -f
 
 # Stop the service
-podman-compose -f podman-compose.amd64.yml down
+podman-compose -f ./config/amd64-24gb.yml down
 ```
 
 ### Method 2: Using Docker Compose
@@ -87,7 +80,7 @@ If you prefer Docker instead of Podman:
 
 ```bash
 # Start the service
-docker-compose -f podman-compose.amd64.yml up -d
+docker-compose -f ./config/amd64-24gb.yml up -d
 
 # Note: The file works with both Podman and Docker
 ```
@@ -106,7 +99,7 @@ podman run -d \
   --name ollama-llm-capability \
   -p 11434:11434 \
   -v ollama-data:/root/.ollama \
-  --memory 20g \
+  --memory 18g \
   --cpus 8 \
   --restart unless-stopped \
   -e OLLAMA_NUM_PARALLEL=8 \
@@ -213,7 +206,7 @@ curl -X POST http://<server-ip>:11434/api/generate -d '{
 The AMD64 configurations are tuned for systems with 24GB+. To optimize for your specific system:
 
 ```yaml
-# Edit podman-compose.amd64.yml or your config file
+# Edit your config preset file under config/ (or run ./scripts/choose-compose.sh to see which one to use)
 deploy:
   resources:
     limits:
@@ -299,7 +292,7 @@ df -h /path/to/ollama-data
 podman exec ollama-llm-capability rm -rf /root/.ollama/tmp/*
 
 # Restart the service
-podman-compose -f podman-compose.amd64.yml restart
+podman-compose -f ./config/amd64-24gb.yml restart
 ```
 
 ## Stopping and Updating
@@ -307,10 +300,10 @@ podman-compose -f podman-compose.amd64.yml restart
 ### Stop the Service
 
 ```bash
-podman-compose -f podman-compose.amd64.yml down
+podman-compose -f ./config/amd64-24gb.yml down
 
 # Remove volumes too (WARNING: deletes models)
-podman-compose -f podman-compose.amd64.yml down -v
+podman-compose -f ./config/amd64-24gb.yml down -v
 ```
 
 ### Update Ollama Image
@@ -320,7 +313,7 @@ podman-compose -f podman-compose.amd64.yml down -v
 podman pull docker.io/ollama/ollama
 
 # Restart the service
-podman-compose -f podman-compose.amd64.yml restart
+podman-compose -f ./config/amd64-24gb.yml restart
 ```
 
 ### Backup Models

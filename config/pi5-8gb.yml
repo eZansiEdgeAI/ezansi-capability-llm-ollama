@@ -1,8 +1,7 @@
 version: '3.8'
 
-# Configuration for Raspberry Pi 5 (16GB)
-# Optimized for larger models like Mistral
-# Use with: podman-compose -f podman-compose.pi5.yml up -d
+# Configuration for Raspberry Pi 5 (8GB)
+# Conservative settings to avoid memory pressure
 
 services:
   ollama:
@@ -14,10 +13,10 @@ services:
     deploy:
       resources:
         limits:
-          memory: 12g
+          memory: 6g
           cpus: '4'
         reservations:
-          memory: 8g
+          memory: 4g
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "ollama", "list"]
@@ -26,8 +25,8 @@ services:
       retries: 3
       start_period: 30s
     environment:
-      - OLLAMA_NUM_PARALLEL=4
-      - OLLAMA_MAX_LOADED_MODELS=2
+      - OLLAMA_NUM_PARALLEL=2
+      - OLLAMA_MAX_LOADED_MODELS=1
 volumes:
   ollama-data:
     driver: local

@@ -7,7 +7,7 @@
       "recommended_models": ["mistral", "llama2", "neural-chat"],
       "max_concurrent_requests": 4,
       "ollama_config": {
-        "memory_limit": "8g",
+        "memory_limit": "12g",
         "num_parallel": 4,
         "max_loaded_models": 2
       }

@@ -24,7 +24,11 @@ Goal: prove the capability works standalone, then prove it can be invoked via th
 From the repo root:
 
 ```bash
-podman-compose up -d
+# Recommend the right preset for your device (prints the exact command)
+./scripts/choose-compose.sh
+
+# Optional: run the recommended command automatically
+./scripts/choose-compose.sh --run
 ```
 
 Verify Ollama API is reachable:

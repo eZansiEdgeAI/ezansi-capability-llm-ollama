@@ -45,8 +45,7 @@ When creating a Phase 2 capability (e.g., `ezansi-capability-stt-whisper`), foll
 ezansi-capability-stt-whisper/
 ├── capability.json           # Contract: defines service interface
 ├── podman-compose.yml        # Deployment: container configuration
-├── podman-compose.pi5.yml    # Device-specific: optimized for Pi 5
-├── podman-compose.amd64.yml  # Optional: device-specific preset for AMD64 (24GB+)
+├── config/pi5-16gb.yml       # Device-specific preset: Pi 5 (16GB)
 ├── README.md                 # Quick start & overview
 ├── CHANGELOG.md              # Version history
 ├── LICENSE                   # License

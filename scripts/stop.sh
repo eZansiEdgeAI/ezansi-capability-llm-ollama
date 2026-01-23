@@ -51,9 +51,14 @@ MATCH_REGEX="${MATCH_REGEX:-ollama-llm-capability}"
 compose_down() {
 	command -v podman-compose >/dev/null 2>&1 || { echo "podman-compose is required" >&2; exit 1; }
 
-	# This repo's pi5 compose file is standalone (not an override).
+	# Prefer canonical preset paths under config/.
 	if [[ "$PROFILE" == "pi5" ]]; then
-		podman-compose -f podman-compose.pi5.yml down
+		if [[ ! -f "config/pi5-16gb.yml" ]]; then
+			echo "Missing preset: config/pi5-16gb.yml" >&2
+			echo "Tip: run ./scripts/choose-compose.sh to select a preset." >&2
+			exit 3
+		fi
+		podman-compose -f config/pi5-16gb.yml down
 	else
 		podman-compose down
 	fi

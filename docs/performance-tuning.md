@@ -6,7 +6,7 @@
 
 | Device | RAM | Recommended Models | Max Memory Limit | Concurrent Requests |
 |--------|-----|-------------------|------------------|---------------------|
-| Pi 5 (16GB) | 16GB | mistral, llama2, neural-chat | 8GB | 4 |
+| Pi 5 (16GB) | 16GB | mistral, llama2, neural-chat | 12GB | 4 |
 | Pi 5 (8GB) | 8GB | mistral, neural-chat, orca-mini | 6GB | 2 |
 | Pi 4 (8GB) | 8GB | neural-chat, orca-mini, tinyllama | 5GB | 2 |
 
@@ -20,7 +20,6 @@ AMD64 systems typically have more RAM/CPU available than Raspberry Pi, so you ca
 |----------|--------|------------------------|------|-------|
 | 24GB | `config/amd64-24gb.yml` | 18GB | 8 | Good default for laptops/workstations |
 | 32GB+ | `config/amd64-32gb.yml` | 28GB | 16 | Higher throughput, more models resident |
-| 24GB+ | `podman-compose.amd64.yml` | 20GB | 8 | Simple default for servers |
 
 ### AMD64 Model Selection
 

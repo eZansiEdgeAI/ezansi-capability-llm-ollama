@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- AMD64 (x86-64) deployment presets: `podman-compose.amd64.yml`, `config/amd64-24gb.yml`, `config/amd64-32gb.yml`
+- AMD64 (x86-64) deployment presets: `config/amd64-24gb.yml`, `config/amd64-32gb.yml`
 - Dedicated AMD64 deployment guide (`docs/deployment-guide-amd64.md`)
 - AMD64 device profiles in `config/device-constraints.json`
 

@@ -260,12 +260,14 @@ For a full AMD64 walkthrough (24GB+ RAM presets), see [docs/deployment-guide-amd
 From the repository root, run:
 
 ```bash
-# Raspberry Pi / low-resource default
-podman-compose up -d
+# Recommended (all devices): auto-select the right preset
+./scripts/choose-compose.sh --run
 
-# AMD64 (x86-64) with 24GB+ RAM
-podman-compose -f config/amd64-24gb.yml up -d
-# or: podman-compose -f podman-compose.amd64.yml up -d
+# Or run a specific preset directly:
+# - Raspberry Pi 5 (16GB): podman-compose -f ./config/pi5-16gb.yml up -d
+# - Raspberry Pi 4 (8GB):  podman-compose -f ./config/pi4-8gb.yml up -d
+# - AMD64 (24GB+):         podman-compose -f ./config/amd64-24gb.yml up -d
+# - AMD64 (32GB+):         podman-compose -f ./config/amd64-32gb.yml up -d
 ```
 
 This will:
@@ -507,12 +509,15 @@ Comprehensive guides available in `docs/`:
 Located in `scripts/`:
 
 - **deploy.sh** - Complete deployment with validation
+- **choose-compose.sh** - Preflight: recommends the right compose preset for your device
 - **validate-deployment.sh** - Post-deployment health checks
 - **pull-model.sh** - Download and configure models
 - **health-check.sh** - Quick health status
 
 Usage:
 ```bash
+./scripts/choose-compose.sh      # Recommend the right preset (prints exact podman-compose command)
+./scripts/choose-compose.sh --run # (optional) start the stack using the recommended preset
 ./scripts/deploy.sh              # Deploy everything
 ./scripts/pull-model.sh mistral  # Pull a model
 ./scripts/health-check.sh        # Check if healthy
@@ -522,20 +527,25 @@ Usage:
 
 Pre-configured setups for different hardware. Choose one based on your device:
 
+Recommended: run the preflight selector first (it detects your device and prints the exact command to run):
+```bash
+./scripts/choose-compose.sh
+```
+
 **For Raspberry Pi 5 (16GB):**
 ```bash
-# Option 1: Use the dedicated Pi 5 compose file
-podman-compose -f podman-compose.pi5.yml up -d
+# Recommended: use the preset directly (no copying)
+podman-compose -f ./config/pi5-16gb.yml up -d
+```
 
-# Option 2: Copy the config file
-cp config/pi5-16gb.yml podman-compose.yml
-podman-compose up -d
+**For Raspberry Pi 5 (8GB):**
+```bash
+podman-compose -f ./config/pi5-8gb.yml up -d
 ```
 
 **For Raspberry Pi 4 (8GB or less):**
 ```bash
-cp config/pi4-8gb.yml podman-compose.yml
-podman-compose up -d
+podman-compose -f ./config/pi4-8gb.yml up -d
 ```
 
 **For AMD64 (x86-64) with 24GB+ RAM:**
@@ -548,11 +558,10 @@ podman-compose -f config/amd64-32gb.yml up -d
 ```
 
 **Configuration files available:**
-- **podman-compose.pi5.yml** - Optimized for Pi 5 (12GB limit, supports Mistral)
 - **config/pi5-16gb.yml** - Equivalent config file for Pi 5
+- **config/pi5-8gb.yml** - Conservative settings for Pi 5 (8GB)
 - **config/amd64-24gb.yml** - AMD64 preset (18GB limit / 14GB reserved)
 - **config/amd64-32gb.yml** - AMD64 preset (28GB limit / 24GB reserved)
-- **podman-compose.amd64.yml** - AMD64 default compose (20GB limit / 16GB reserved)
 - **config/pi4-8gb.yml** - Conservative settings for Pi 4 (5GB limit)
 - **device-constraints.json** - Device capability reference
 

@@ -29,8 +29,11 @@ echo "✓ Prerequisites satisfied"
 echo ""
 
 # Deploy
+echo "Selecting best compose preset for this device..."
+./scripts/choose-compose.sh
+
 echo "Starting Ollama container..."
-podman-compose up -d
+./scripts/choose-compose.sh --run
 
 echo ""
 echo "Waiting for container to be ready..."
